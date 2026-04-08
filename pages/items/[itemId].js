@@ -4,13 +4,13 @@ import { useRouter } from "next/router";
 import Head from "next/head";
 import Layout from "../../components/layout";
 import utilStyles from "../../styles/utils.module.css";
-import unified from "unified";
+import { unified } from "unified";
 import matter from "gray-matter";
-import markdown from "remark-parse";
-import html from "remark-html";
-import externalLinks from "remark-external-links";
+import remarkParse from "remark-parse";
+import remarkHtml from "remark-html";
 import useSwr, { mutate } from "swr";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -18,31 +18,27 @@ export default function Item() {
   const router = useRouter();
   const { itemId, title } = router.query;
   const { data, error } = useSwr(itemId ? `/api/items/${itemId}` : null, fetcher);
-  let detailHtml;
-  if (error) {
-    console.log(error);
-  } else if (data) {
-    const matterResult = matter(data.Detail);
-    const processedContent = unified()
-      .use(markdown)
-      .use(externalLinks, { target: "_blank", rel: false })
-      .use(html)
-      .processSync(matterResult.content);
-    detailHtml = processedContent.toString();
-    mutate(`/api/items/${itemId}`, async (item) => {
-      if (item.Done == "n") {
-        const updatedItem = await fetch(`/api/items/${item.ItemId}`, {
+  const [detailHtml, setDetailHtml] = useState("");
+
+  useEffect(() => {
+    if (data && data.Detail) {
+      const matterResult = matter(data.Detail);
+      unified()
+        .use(remarkParse)
+        .use(remarkHtml)
+        .process(matterResult.content)
+        .then((result) => setDetailHtml(String(result)));
+
+      if (data.Done === "n") {
+        fetch(`/api/items/${data.ItemId}`, {
           method: "PUT",
           body: JSON.stringify({ done: "y" }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        item.Done = "y";
+          headers: { "Content-Type": "application/json" },
+        }).then(() => mutate(`/api/items/${itemId}`));
       }
-      return item;
-    });
-  }
+    }
+  }, [data, itemId]);
+
   return (
     <Layout>
       <section className={`${utilStyles.headingMd} ${utilStyles.padding1px}`}>
@@ -75,18 +71,11 @@ export default function Item() {
       </section>
       <section className={`${utilStyles.headingMd} ${utilStyles.padding1px}`}>
         <div className={utilStyles.backToHome}>
-          <Link href="/" passHref>
-            <a className="back-button">{BackButtonText(data)}</a>
+          <Link href="/" className="back-button">
+            {data ? "< Back to home" : ""}
           </Link>
         </div>
       </section>
     </Layout>
   );
-}
-
-function BackButtonText(data) {
-  if (!data) {
-    return "";
-  }
-  return "< Back to home";
 }

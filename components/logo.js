@@ -10,6 +10,7 @@ export default function Logo({ size }) {
       width={size.w}
       height={size.h}
       alt="Powered by App Runner"
+      style={{ maxWidth: "100%", height: "auto" }}
     />
   );
 }
