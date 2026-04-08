@@ -11,23 +11,24 @@ export default async function handler(req, res) {
 
   switch (method) {
     case "GET":
-      let params = {};
-      let scanResults = [];
-      let ret;
-      do {
-        ret = await ddb.query(params);
-        ret.Items.forEach((item) => scanResults.push(item));
-        params.ExclusiveStartKey = ret.LastEvaluatedKey;
-      } while (typeof ret.LastEvaluatedKey != "undefined");
-      res.status(200).json(
-        scanResults.sort((a, b) => {
-          if (a.Title > b.Title) {
-            return 1;
-          } else {
-            return -1;
-          }
-        })
-      );
+      try {
+        let params = {};
+        let scanResults = [];
+        let ret;
+        do {
+          ret = await ddb.query(params);
+          ret.Items.forEach((item) => scanResults.push(item));
+          params.ExclusiveStartKey = ret.LastEvaluatedKey;
+        } while (typeof ret.LastEvaluatedKey != "undefined");
+        res.status(200).json(
+          scanResults.sort((a, b) => (a.Title > b.Title ? 1 : -1))
+        );
+      } catch (err) {
+        console.warn("DynamoDB unavailable, returning fallback data:", err.message);
+        res.status(200).json([
+          { ItemId: "demo", Title: "🚀 App Runner is running! DynamoDB not configured yet.", Done: "n" },
+        ]);
+      }
       break;
     case "POST":
       const item = {

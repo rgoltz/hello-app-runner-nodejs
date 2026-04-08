@@ -15,7 +15,7 @@
     "@aws-sdk/client-dynamodb": "^3.700.0",
     "@aws-sdk/lib-dynamodb": "^3.700.0",
     "gray-matter": "^4.0.3",
-    "next": "^16.2.2",
+    "next": "^14.2.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "rehype-external-links": "^3.0.0",
