@@ -25,7 +25,7 @@ export default function Home() {
                   >
                     <span>
                       {Done === "y" ? "✅ " : ""}
-                      <a className={`done-${Done}`}>{Title}</a>
+                      <span className={`done-${Done}`}>{Title}</span>
                     </span>
                   </Link>
                 </li>

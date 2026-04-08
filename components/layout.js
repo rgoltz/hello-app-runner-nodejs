@@ -23,17 +23,13 @@ export default function Layout({ children, home }) {
       <header className={styles.header}>
         {home ? (
           <>
-            <Logo size={{w:600,h:314}} />
+            <Logo size={{ w: 600, h: 314 }} />
             <h1 className={utilStyles.heading2Xl}>{topPageMessage}</h1>
           </>
         ) : (
-          <>
-            <Link href="/">
-              <a>
-                <Logo size={{w:450,h:235}} />
-              </a>
-            </Link>
-          </>
+          <Link href="/">
+            <Logo size={{ w: 450, h: 235 }} />
+          </Link>
         )}
       </header>
       <main>{children}</main>
