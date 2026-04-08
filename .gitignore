@@ -29,5 +29,3 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
-# repo specific
-public/images/banner_base_light.png
